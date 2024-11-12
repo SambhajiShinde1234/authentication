@@ -12,6 +12,7 @@ export const registerUser = async (req, res) => {
 
     const user = await User.create({ username, email, password });
 
+    // generate token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
@@ -45,6 +46,7 @@ export const loginUser = async ({ req, res }) => {
       res.status(400).json({ message: "Invalid email or password" });
     }
 
+    // generate token
     const token = jwt.sign({ id: User._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
