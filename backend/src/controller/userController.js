@@ -2,56 +2,52 @@ import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
-  const { username, email, password } = req;
-
+  const { username, email, password } = req.body;
   try {
     const isUserExist = await User.findOne({ email });
     if (isUserExist) {
-      res.Status(400).json({ message: "user already exist" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
     }
-
     const user = await User.create({ username, email, password });
-
-    // generate token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    res.Status(201).json({
+    res.status(201).json({
+      success: true,
       id: user._id,
       username: user.username,
       email: user.email,
-      token,
+      message: "User registered successfully",
     });
   } catch (error) {
     res.status(500).json({
-      message: error.message,
+      success: false,
+      message: "Something went wrong while registering",
     });
   }
 };
 
-export const loginUser = async ({ req, res }) => {
-  const { email, password } = req;
-
+export const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  console.log(req.body);
   try {
-    const user = User.findOne({ email });
-
+    const user = await User.findOne({ email });
     if (!user) {
-      res.status(400).json({ message: "Invalid email or password" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email or password" });
     }
-
-    const isPasswordValid = await User.matchPassword({ password });
-
+    const isPasswordValid = await user.matchPassword(password);
     if (!isPasswordValid) {
-      res.status(400).json({ message: "Invalid email or password" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email or password" });
     }
-
     // generate token
-    const token = jwt.sign({ id: User._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-
-    res.send(200).json({
+    res.status(200).json({
+      success: true,
       id: user._id,
       username: user.username,
       email: user.email,
@@ -59,7 +55,8 @@ export const loginUser = async ({ req, res }) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: error.message,
+      success: false,
+      message: "Something went wrong while login",
     });
   }
 };
