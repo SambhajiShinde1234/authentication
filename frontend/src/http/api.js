@@ -17,7 +17,7 @@ api.interceptors.request.use((config) => {
 
 export const POST = async (endpoint, payload) => {
   try {
-    const response = api.post(endpoint, payload);
+    const response = await api.post(endpoint, payload);
     return response?.data;
   } catch (error) {
     const errorMessage =
@@ -28,7 +28,7 @@ export const POST = async (endpoint, payload) => {
 
 export const GET = async (endpoint) => {
   try {
-    const response = api.get(endpoint);
+    const response = await api.get(endpoint);
     return response?.data;
   } catch (error) {
     const errorMessage =
